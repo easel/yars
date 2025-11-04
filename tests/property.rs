@@ -16,7 +16,8 @@ fn chars_to_string(chars: Vec<char>) -> String {
 }
 
 fn mapping_get<'a>(map: &'a Mapping, key: &str) -> Option<&'a Value> {
-    map.get(&Value::String(key.to_string()))
+    let key_value = Value::String(key.to_string());
+    map.get(&key_value)
 }
 
 fn value_sort_key(value: &Value) -> String {
