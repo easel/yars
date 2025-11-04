@@ -344,8 +344,7 @@ proptest! {
         let parsed: Value = parse_yaml(&formatted);
         let root = parsed.as_mapping().unwrap();
         let meta = mapping_get(root, "meta").and_then(Value::as_mapping).unwrap();
-        let description = meta
-            .get(&Value::String("description".to_string()))
+        let description = mapping_get(meta, "description")
             .and_then(Value::as_str)
             .unwrap()
             .to_string();
