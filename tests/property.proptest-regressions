@@ -1,0 +1,8 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 67601c4950c746dd87366777c227e5277a702595320844f6d7494d0f2bc3989c # shrinks to list = [Mapping {"a": String("-")}]
+cc e822d96aecef00bb7c3edaae63a4e6132f004054d00968f77b5f836bca257e54 # shrinks to value = Mapping {"a": Sequence [Mapping {"a": Mapping {"a": String("-")}}]}

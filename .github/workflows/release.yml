@@ -1,0 +1,104 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    name: Build ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            archive: tar.gz
+          - os: macos-13
+            target: x86_64-apple-darwin
+            archive: tar.gz
+          - os: macos-14
+            target: aarch64-apple-darwin
+            archive: tar.gz
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            archive: zip
+    env:
+      CARGO_TERM_COLOR: always
+      CARGO_BIN: yars_format
+      DIST_BIN: yars-format
+      RELEASE_TAG: ${{ github.ref_name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+
+      - name: Install target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Install musl tools
+        if: matrix.target == 'x86_64-unknown-linux-gnu' && runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+
+      - name: Build
+        run: cargo build --release --bin ${CARGO_BIN} --target ${{ matrix.target }}
+
+      - name: Package (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          ARTIFACT="${DIST_BIN}-${RELEASE_TAG}-${{ matrix.target }}.${{ matrix.archive }}"
+          mkdir -p package
+          cp target/${{ matrix.target }}/release/${CARGO_BIN} package/${DIST_BIN}
+          cp LICENSE NOTICE README.md package/
+          tar -czf "${ARTIFACT}" -C package .
+          echo "artifact_name=${ARTIFACT}" >> $GITHUB_OUTPUT
+        id: package
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          $artifact = "${env:DIST_BIN}-${env:RELEASE_TAG}-${{ matrix.target }}.${{ matrix.archive }}"
+          mkdir package
+          copy target\${{ matrix.target }}\release\${env:CARGO_BIN}.exe package\${env:DIST_BIN}.exe
+          copy LICENSE package\
+          copy NOTICE package\
+          copy README.md package\
+          Compress-Archive -Path package\* -DestinationPath $artifact
+          echo "artifact_name=$artifact" >> $env:GITHUB_OUTPUT
+        id: package_win
+
+      - name: Upload artifact (Unix)
+        if: runner.os != 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.artifact_name }}
+          path: ${{ steps.package.outputs.artifact_name }}
+
+      - name: Upload artifact (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package_win.outputs.artifact_name }}
+          path: ${{ steps.package_win.outputs.artifact_name }}
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
