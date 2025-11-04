@@ -552,6 +552,28 @@ fn looks_like_number(text: &str) -> bool {
         return false;
     }
 
+    let lower = trimmed.to_ascii_lowercase();
+    if lower.starts_with("0x") || lower.starts_with("0o") || lower.starts_with("0b") {
+        let digits = &trimmed[2..];
+        if digits.chars().all(|ch| ch.is_ascii_hexdigit()) {
+            return true;
+        }
+        if lower.starts_with("0o")
+            && digits
+                .chars()
+                .all(|ch| matches!(ch, '0'..='7'))
+        {
+            return true;
+        }
+        if lower.starts_with("0b")
+            && digits
+                .chars()
+                .all(|ch| matches!(ch, '0' | '1'))
+        {
+            return true;
+        }
+    }
+
     let numeric = trimmed.chars().all(|ch| ch.is_ascii_digit());
     if numeric {
         return true;

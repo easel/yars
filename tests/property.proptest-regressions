@@ -6,3 +6,4 @@
 # everyone who runs the test benefits from these saved cases.
 cc 67601c4950c746dd87366777c227e5277a702595320844f6d7494d0f2bc3989c # shrinks to list = [Mapping {"a": String("-")}]
 cc e822d96aecef00bb7c3edaae63a4e6132f004054d00968f77b5f836bca257e54 # shrinks to value = Mapping {"a": Sequence [Mapping {"a": Mapping {"a": String("-")}}]}
+cc eb18771ff3fcc6101e7058536cd7f6c576deb111dec4ed89062f5837556d1229 # shrinks to value = Mapping {"column": Mapping {"name": String("a"), "canonical_name": String("A"), "data_type": String("StringType"), "description": String(" 0A0AA aaa"), "nullable": Mapping {"MP": Bool(false)}, "length": Null}, "validations": Sequence [Mapping {"kwargs": Mapping {"0o0": String("a")}, "meta": Mapping {"description": String("6\n\n:\n\n\t\t\n\n"), "severity": String("warning"), "rule_id": String("_D33Y_D7_L_C16NGH64_4G6_9___")}, "type": String("Q_24qZ17__3l7")}]} 
