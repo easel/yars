@@ -7,7 +7,6 @@
 //! - `format_yaml_files`
 
 use serde::Serialize;
-use serde_json;
 use serde_yaml::value::{Mapping, TaggedValue};
 use serde_yaml::Value;
 use std::borrow::Cow;
@@ -494,10 +493,7 @@ fn should_use_literal_block(text: &str) -> bool {
     if !text.contains('\n') {
         return false;
     }
-    if text
-        .chars()
-        .any(|ch| is_disallowed_control(ch))
-    {
+    if text.chars().any(is_disallowed_control) {
         return false;
     }
     if text
