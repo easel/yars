@@ -139,10 +139,7 @@ fn kwargs_value_strategy() -> BoxedStrategy<Value> {
 fn kwargs_strategy() -> BoxedStrategy<Value> {
     prop::collection::btree_map(identifier_string(1, 20), kwargs_value_strategy(), 1..=5)
         .prop_map(|entries| {
-            let pairs = entries
-                .into_iter()
-                .map(|(k, v)| (k, v))
-                .collect::<Vec<_>>();
+            let pairs = entries.into_iter().collect::<Vec<_>>();
             value_from_pairs(pairs)
         })
         .boxed()
@@ -194,7 +191,7 @@ fn nullable_strategy() -> BoxedStrategy<Value> {
                 let pairs = keys
                     .iter()
                     .cloned()
-                    .zip(values.into_iter())
+                    .zip(values)
                     .map(|(k, v)| (k.to_string(), bool_value(v)))
                     .collect::<Vec<_>>();
                 value_from_pairs(pairs)
@@ -251,10 +248,7 @@ fn list_of_dicts_strategy() -> BoxedStrategy<Vec<Value>> {
     prop::collection::vec(
         prop::collection::btree_map(identifier_string(1, 15), kwargs_value_strategy(), 1..=6)
             .prop_map(|entries| {
-                let pairs = entries
-                    .into_iter()
-                    .map(|(k, v)| (k, v))
-                    .collect::<Vec<_>>();
+                let pairs = entries.into_iter().collect::<Vec<_>>();
                 value_from_pairs(pairs)
             }),
         1..=15,
